@@ -6,6 +6,7 @@ from aioalf import __version__
 tests_require = [
     'mock',
     'asynctest',
+    'bumpversion',
     'nose',
     'coverage',
     'yanc',
