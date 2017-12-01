@@ -77,6 +77,8 @@ class TokenManager(object):
         try:
             response = await self._http_client.request(method, url, **request_data)
             async with response:
-                return await response.json()
+                result = await response.json()
+                await self._http_client.close()
+                return result
         except ClientResponseError as e:
             raise TokenHTTPError('Failed to request token', e.status, e.message)

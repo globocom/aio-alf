@@ -24,6 +24,9 @@ class Client(object):
             client_secret=client_secret,
             http_options=http_options)
 
+    async def close(self):
+        await self._http_client.close()
+
     async def request(self, method, url, **kwargs):
         try:
             response = await self._authorized_fetch(method,
