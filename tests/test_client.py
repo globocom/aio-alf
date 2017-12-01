@@ -4,7 +4,7 @@ from asynctest import patch, CoroutineMock
 from . import AsyncTestCase
 
 from aiohttp.test_utils import unittest_run_loop
-from aioalf.manager import TokenManager, TokenError
+from aioalf.manager import TokenManager, TokenHTTPError, TokenError
 from aioalf.client import Client
 
 
@@ -82,7 +82,7 @@ class TestClient(AsyncTestCase):
 
         with patch('aioalf.client.Client._authorized_fetch') as _authorized_fetch:
 
-            _authorized_fetch.side_effect = TokenError('boom', 401, 'boom')
+            _authorized_fetch.side_effect = TokenHTTPError('boom', 401, 'boom')
             try:
                 await self._request(Manager)
             except TokenError as e:

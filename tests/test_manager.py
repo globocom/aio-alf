@@ -3,7 +3,7 @@
 from asynctest import patch, CoroutineMock
 from . import AsyncTestCase, make_response
 from aiohttp.test_utils import unittest_run_loop
-from aioalf.manager import TokenManager, Token, TokenError
+from aioalf.manager import TokenManager, TokenHTTPError, Token, TokenError
 
 
 class TestTokenManager(AsyncTestCase):
@@ -53,7 +53,7 @@ class TestTokenManager(AsyncTestCase):
 
     @unittest_run_loop
     async def test_should_raise_token_error_for_bad_token(self):
-        self._fake_fetch.side_effect = TokenError('error', 500, 'fail')
+        self._fake_fetch.side_effect = TokenHTTPError('error', 500, 'fail')
 
         with self.assertRaises(TokenError) as context:
             await self.manager._request_token()

@@ -5,16 +5,19 @@ from datetime import datetime, timedelta
 
 class TokenError(Exception):
 
-    def __init__(self, message, response_status, response_text):
+    def __init__(self, message):
         super(TokenError, self).__init__(message)
-        self.response_status = response_status
-        self.response_text = response_text
 
 
 class TokenHTTPError(TokenError):
 
+    def __init__(self, message, response_status=None, response_text=None):
+        super().__init__(message)
+        self.response_status = response_status
+        self.response_text = response_text
+
     def __str__(self):
-        err = super(TokenError, self).__str__()
+        err = super().__str__()
 
         if self.response_text:
             return '%s, StatusCode: %d, Body: %s' % (

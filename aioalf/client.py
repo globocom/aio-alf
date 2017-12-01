@@ -45,9 +45,11 @@ class Client(object):
     async def _authorized_fetch(self, method, url, **kwargs):
         access_token = await self._token_manager.get_token()
 
-        kwargs.update('headers', {
-            'Authorization': 'Bearer {}'.format(access_token)
-        })
+        auth_headers = {'Authorization': 'Bearer {}'.format(access_token)}
+        if 'headers' in kwargs:
+            kwargs['headers'].update(auth_headers)
+        else:
+            kwargs['headers'] = auth_headers
 
         logger.debug('Request: %s %s', method, url)
         for header in kwargs.get('headers'):

@@ -87,4 +87,4 @@ class TokenManager(object):
             async with response:
                 return await response.json()
         except ClientResponseError as e:
-            raise TokenHTTPError('Failed to request token', e.code, e.message)
+            raise TokenHTTPError('Failed to request token', e.status, e.message)
