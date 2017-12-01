@@ -3,11 +3,6 @@ from base64 import b64encode
 from aioalf.token import Token, TokenError, TokenHTTPError
 from aiohttp import ClientSession, ClientResponseError
 
-try:
-    from urllib import urlencode
-except ImportError:
-    from urllib.parse import urlencode
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -56,9 +51,6 @@ class TokenManager(object):
         )
 
     async def _fetch(self, url, method="GET", data=None, auth=None):
-        if type(data) == dict:
-            data = urlencode(data)
-
         request_data = dict(
             headers={},
             data=data
