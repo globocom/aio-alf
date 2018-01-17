@@ -2,6 +2,7 @@
 from base64 import b64encode
 from aioalf.token import Token, TokenError, TokenHTTPError
 from aiohttp import ClientSession, ClientResponseError
+from asyncio import Lock
 
 import logging
 
@@ -19,14 +20,16 @@ class TokenManager(object):
         self._token = Token()
         self._http_options = http_options if http_options else {}
         self._http_client = ClientSession()
+        self._token_lock = Lock()
 
     def _has_token(self):
         return self._token.is_valid()
 
     async def get_token(self):
-        if not self._has_token():
-            await self._update_token()
-        return self._token.access_token
+        async with self._token_lock:
+            if not self._has_token():
+                await self._update_token()
+            return self._token.access_token
 
     async def _get_token_data(self):
         return await self._request_token()
