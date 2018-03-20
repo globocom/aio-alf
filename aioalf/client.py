@@ -59,3 +59,15 @@ class Client(object):
             logger.debug('Header %s: %s', header, kwargs.get('headers').get(header))
 
         return await self._http_client.request(method, url, **kwargs)
+
+    def __enter__(self):
+        raise TypeError("Use async with instead.")
+
+    def __exit__(self, type, value, traceback):
+        pass  # pragma: no cover
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, type, value, traceback):
+        await self.close()

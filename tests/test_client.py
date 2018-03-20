@@ -26,6 +26,15 @@ class TestClient(AsyncTestCase):
         )
 
     @unittest_run_loop
+    @patch('aioalf.client.Client.close')
+    async def test_async_with_closes_client(self, close_mock):
+        async with Client(token_endpoint=self.end_point,
+                        client_id='client-id', client_secret='client_secret') as client:
+            pass
+
+        close_mock.assert_called_once()
+
+    @unittest_run_loop
     @patch('aioalf.client.TokenManager')
     async def test_should_return_a_good_request(self, Manager):
         manager = self._fake_manager(Manager, has_token=False)

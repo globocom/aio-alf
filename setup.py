@@ -20,7 +20,7 @@ setup(
     version=__version__,
     description="OAuth Client For aiohttp",
     long_description=open('README.rst').read(),
-    keywords='oauth client client_credentials aiohtpp',
+    keywords='oauth client client_credentials aiohttp',
     author=u'Globo.com',
     author_email='entretenimento1@corp.globo.com',
     url='https://github.com/globocom/aio-alf',
