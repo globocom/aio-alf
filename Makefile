@@ -23,6 +23,8 @@ major:
 
 bump:
 	@bumpversion ${BUMP}
+
+push_tags:
 	@git push
 	@git push --tags
 

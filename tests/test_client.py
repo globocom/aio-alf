@@ -29,7 +29,7 @@ class TestClient(AsyncTestCase):
     @patch('aioalf.client.Client.close')
     async def test_async_with_closes_client(self, close_mock):
         async with Client(token_endpoint=self.end_point,
-                        client_id='client-id', client_secret='client_secret') as client:
+                          client_id='client-id', client_secret='client_secret'):
             pass
 
         close_mock.assert_called_once()
