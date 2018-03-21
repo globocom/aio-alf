@@ -3,7 +3,7 @@
 
 from unittest import TestCase, mock
 from yarl import URL
-from aiohttp import ClientResponse
+from aiohttp import ClientResponse, __version__ as aiohttp_version
 
 
 class AsyncTestCase(TestCase):
@@ -27,8 +27,24 @@ class AsyncTestCase(TestCase):
 
 def make_response(loop, method, url, data=None,
                   content_type='text/plain', charset='utf-8'):
-    response = ClientResponse(method, URL(url))
-    response._post_init(loop, mock.Mock())
+    if aiohttp_version > '3.1.0':
+        response = ClientResponse(method, URL(url),
+                                  writer=mock.Mock(),
+                                  continue100=None,
+                                  timer=None,
+                                  request_info=mock.Mock(),
+                                  auto_decompress=True,
+                                  traces=[],
+                                  loop=loop,
+                                  session=mock.Mock())
+    else:
+        response = ClientResponse(method, URL(url),
+                                  writer=mock.Mock(),
+                                  continue100=None,
+                                  timer=None,
+                                  request_info=mock.Mock(),
+                                  auto_decompress=True)
+        response._post_init(loop, mock.Mock())
 
     def side_effect(*args, **kwargs):
         fut = loop.create_future()
