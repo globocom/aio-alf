@@ -59,6 +59,7 @@ object and a port range, it defaults to the range (32000, 32009).
 Example:
 
 .. code-block:: python
+
     await use_implicit_flow(TokenStorage(), (30000, 30009))
 
     async with Client(token_endpoint='https://token.endpoint',
