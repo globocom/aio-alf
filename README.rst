@@ -50,6 +50,26 @@ Alternatively one can pass directly a string to the fetch client
         headers={'Content-Type': 'application/json'}
     )
 
+Implicit Flow
+-------------
+
+Support for OAuth2 implict flow to enable it, call `use_implicit_flow` with a `TokenStorage`
+object and a port range, it defaults to the range (32000, 32009).
+
+Example:
+
+.. code-block:: python
+    await use_implicit_flow(TokenStorage(), (30000, 30009))
+
+    async with Client(token_endpoint='https://token.endpoint',
+                      client_id='glBQ3nYU/8/kaVi/bIgXGA==',
+                      client_secret='') as client:
+        response = await client.request('GET', 'http://example.com/resource')
+        text = await response.text()
+        print(response.status)
+
+The library has a really simple in memory token storage, you should subclass and overwrite
+its methods if you need to persist the token for a longer period.
 
 
 How it works?
