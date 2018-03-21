@@ -4,6 +4,7 @@
 from unittest import TestCase, mock
 from yarl import URL
 from aiohttp import ClientResponse, __version__ as aiohttp_version
+from distutils.version import LooseVersion
 
 
 class AsyncTestCase(TestCase):
@@ -27,7 +28,7 @@ class AsyncTestCase(TestCase):
 
 def make_response(loop, method, url, data=None,
                   content_type='text/plain', charset='utf-8'):
-    if aiohttp_version > '3.1.0':
+    if LooseVersion(aiohttp_version) >= LooseVersion('3.1.0'):
         response = ClientResponse(method, URL(url),
                                   writer=mock.Mock(),
                                   continue100=None,
