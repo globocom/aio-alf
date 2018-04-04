@@ -108,6 +108,15 @@ class TestTokenManager(AsyncTestCase):
         self.assertTrue(_update_token.called)
 
 
+class ClientSessionMock(CoroutineMock):
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, type, value, traceback):
+        pass
+
+
 class TestTokenManagerHTTP(AsyncTestCase):
 
     async def setUpAsync(self):
@@ -116,13 +125,17 @@ class TestTokenManagerHTTP(AsyncTestCase):
         self.client_secret = 'client_secret'
         self.http_options = {'timeout': 2}
 
+    @patch('aioalf.manager.ClientSession')
     @unittest_run_loop
-    async def test_work_with_no_http_options(self):
+    async def test_work_with_no_http_options(self, client_session_mock):
+        _fake_fetch = CoroutineMock()
+        client_mock = ClientSessionMock()
+        client_mock.request = _fake_fetch
+        client_session_mock.return_value = client_mock
+
         self.manager = TokenManager(self.end_point,
                                     self.client_id,
                                     self.client_secret)
-        self._fake_fetch = CoroutineMock()
-        self.manager._http_client.request = self._fake_fetch
 
         fake_response = make_response(
             self.loop,
@@ -131,20 +144,24 @@ class TestTokenManagerHTTP(AsyncTestCase):
             data='{"access_token":"access","expires_in":10}',
             content_type='application/json'
         )
-        self._fake_fetch.return_value = fake_response
+        _fake_fetch.return_value = fake_response
 
         await self.manager._request_token()
-        request_kwargs = self._fake_fetch.call_args[1]
+        request_kwargs = _fake_fetch.call_args[1]
         assert 'timeout' not in request_kwargs
 
+    @patch('aioalf.manager.ClientSession')
     @unittest_run_loop
-    async def test_should_use_http_options(self):
+    async def test_should_use_http_options(self, client_session_mock):
+        _fake_fetch = CoroutineMock()
+        client_mock = ClientSessionMock()
+        client_mock.request = _fake_fetch
+        client_session_mock.return_value = client_mock
+
         self.manager = TokenManager(self.end_point,
                                     self.client_id,
                                     self.client_secret,
                                     self.http_options)
-        self._fake_fetch = CoroutineMock()
-        self.manager._http_client.request = self._fake_fetch
 
         fake_response = make_response(
             self.loop,
@@ -153,10 +170,10 @@ class TestTokenManagerHTTP(AsyncTestCase):
             data='{"access_token":"access","expires_in":10}',
             content_type='application/json'
         )
-        self._fake_fetch.return_value = fake_response
+        _fake_fetch.return_value = fake_response
 
         await self.manager._request_token()
-        request_kwargs = self._fake_fetch.call_args[1]
+        request_kwargs = _fake_fetch.call_args[1]
         self.assertEqual(request_kwargs['timeout'], 2)
         self.assertEqual(request_kwargs.get('headers').get('Authorization'),
                          'Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=')

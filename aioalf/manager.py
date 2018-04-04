@@ -19,7 +19,6 @@ class TokenManager(object):
         self._client_secret = client_secret
         self._token = Token()
         self._http_options = http_options if http_options else {}
-        self._http_client = ClientSession()
         self._token_lock = Lock()
 
     def _has_token(self):
@@ -78,10 +77,9 @@ class TokenManager(object):
             logger.debug('Header %s: %s', header, request_data.get('headers', {}).get(header))
 
         try:
-            response = await self._http_client.request(method, url, **request_data)
-            async with response:
+            async with ClientSession() as client:
+                response = await client.request(method, url, **request_data)
                 result = await response.json()
-                await self._http_client.close()
                 return result
         except ClientResponseError as e:
             raise TokenHTTPError('Failed to request token', e.status, e.message)
