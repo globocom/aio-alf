@@ -4,6 +4,7 @@ import logging
 
 from aiohttp import ClientSession
 from aioalf.manager import TokenManager, TokenError
+from aioalf.token import TOKEN_FILTER
 
 BAD_TOKEN = 401
 
@@ -58,6 +59,14 @@ class Client(object):
 
         logger.debug('Request: %s %s', method, url)
         for header in kwargs.get('headers'):
+            if header.lower() == 'authorization':
+                authorization_data = request_data.get('headers', {}).get(header)
+                matches = TOKEN_FILTER.match(authorization_data)
+                if matches:
+                    logger.debug(('Header {}: {}<...>{}').format(header,
+                                                                 matches.group('start'),
+                                                                 matches.group('end')))
+                continue
             logger.debug('Header %s: %s', header, kwargs.get('headers').get(header))
 
         return await self._http_client.request(method, url, **kwargs)

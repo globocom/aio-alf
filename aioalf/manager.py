@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from base64 import b64encode
-from aioalf.token import Token, TokenError, TokenHTTPError
+from aioalf.token import Token, TokenError, TokenHTTPError, TOKEN_FILTER
 from aiohttp import ClientSession, ClientResponseError
 from asyncio import Lock
 
@@ -87,6 +87,14 @@ class TokenManager(object):
 
         logger.debug('Request: %s %s', method, url)
         for header in request_data.get('headers'):
+            if header.lower() == 'authorization':
+                authorization_data = request_data.get('headers', {}).get(header)
+                matches = TOKEN_FILTER.match(authorization_data)
+                if matches:
+                    logger.debug(('Header {}: {}<...>{}').format(header,
+                                                                 matches.group('start'),
+                                                                 matches.group('end')))
+                continue
             logger.debug('Header %s: %s', header, request_data.get('headers', {}).get(header))
 
         try:
