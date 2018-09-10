@@ -62,6 +62,56 @@ class TestImplicitTokenManager(AsyncTestCase):
         self.assertEqual(token, '1234')
         browser_open_mock.assert_called_with('http://endpoint/authorize?response_type=token&client_id=client_id&redirect_uri=http%3A//localhost%3A30000')  # noqa
 
+    @patch('webbrowser.open')
+    @unittest_run_loop
+    async def test_can_open_browser_with_scope(self, browser_open_mock):
+        self.manager = OAuthImplictTokenManager(self.end_point,
+                                                self.client_id,
+                                                self.client_secret,
+                                                scope="user")
+        storage = Mock()
+        storage.load.return_value = None
+
+        site = Mock()
+        site.stop = CoroutineMock()
+        token_waiter = Future()
+        token_waiter.set_result({'access_token': '1234'})
+        app = {'port': 30000, 'token_waiter': token_waiter}
+
+        self.manager.storage = storage
+        self.manager.app = app
+        self.manager.site = site
+
+        token = await self.manager.get_token()
+
+        self.assertEqual(token, '1234')
+        browser_open_mock.assert_called_with('http://endpoint/authorize?response_type=token&client_id=client_id&redirect_uri=http%3A//localhost%3A30000&scope=user')  # noqa
+
+    @patch('webbrowser.open')
+    @unittest_run_loop
+    async def test_can_open_browser_with_scopes(self, browser_open_mock):
+        self.manager = OAuthImplictTokenManager(self.end_point,
+                                                self.client_id,
+                                                self.client_secret,
+                                                scope=["user", "user:admin", "specialScope"])
+        storage = Mock()
+        storage.load.return_value = None
+
+        site = Mock()
+        site.stop = CoroutineMock()
+        token_waiter = Future()
+        token_waiter.set_result({'access_token': '1234'})
+        app = {'port': 30000, 'token_waiter': token_waiter}
+
+        self.manager.storage = storage
+        self.manager.app = app
+        self.manager.site = site
+
+        token = await self.manager.get_token()
+
+        self.assertEqual(token, '1234')
+        browser_open_mock.assert_called_with('http://endpoint/authorize?response_type=token&client_id=client_id&redirect_uri=http%3A//localhost%3A30000&scope=user%20user%3Aadmin%20specialScope')  # noqa
+
 
 class TestTokenStorage(TestCase):
 

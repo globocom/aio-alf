@@ -12,11 +12,13 @@ logger = logging.getLogger(__name__)
 class TokenManager(object):
 
     def __init__(self, token_endpoint, client_id,
-                 client_secret, http_options=None):
+                 client_secret, http_options=None,
+                 scope=None):
 
         self._token_endpoint = token_endpoint
         self._client_id = client_id
         self._client_secret = client_secret
+        self._scope = scope
         self._token = Token()
         self._http_options = http_options if http_options else {}
         self._token_lock = Lock()
@@ -45,11 +47,22 @@ class TokenManager(object):
         if not self._token_endpoint:
             raise TokenError('Missing token endpoint')
 
+        data = {
+            'grant_type': 'client_credentials',
+        }
+
+        if self._scope:
+            scope = self._scope
+            if isinstance(scope, list):
+                scope = " ".join(self._scope)
+
+            data['scope'] = scope
+
         return await self._fetch(
             url=self._token_endpoint,
             method="POST",
             auth=(self._client_id, self._client_secret),
-            data={'grant_type': 'client_credentials'}
+            data=data
         )
 
     async def _fetch(self, url, method="GET", data=None, auth=None):

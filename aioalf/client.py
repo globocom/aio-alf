@@ -15,14 +15,16 @@ class Client(object):
     token_manager_class = TokenManager
 
     def __init__(self, client_id, client_secret,
-                 token_endpoint, http_options=None):
+                 token_endpoint, http_options=None,
+                 scope=None):
         http_options = http_options is None and {} or http_options
         self._http_client = ClientSession()
         self._token_manager = self.token_manager_class(
             token_endpoint=token_endpoint,
             client_id=client_id,
             client_secret=client_secret,
-            http_options=http_options)
+            http_options=http_options,
+            scope=scope)
 
     async def close(self):
         await self._http_client.close()

@@ -177,3 +177,65 @@ class TestTokenManagerHTTP(AsyncTestCase):
         self.assertEqual(request_kwargs['timeout'], 2)
         self.assertEqual(request_kwargs.get('headers').get('Authorization'),
                          'Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=')
+
+    @patch('aioalf.manager.ClientSession')
+    @unittest_run_loop
+    async def test_can_use_simple_scope(self, client_session_mock):
+        _fake_fetch = CoroutineMock()
+        client_mock = ClientSessionMock()
+        client_mock.request = _fake_fetch
+        client_session_mock.return_value = client_mock
+
+        self.manager = TokenManager(self.end_point,
+                                    self.client_id,
+                                    self.client_secret,
+                                    self.http_options,
+                                    scope="user")
+
+        fake_response = make_response(
+            self.loop,
+            'POST',
+            'http://localhost/token',
+            data='{"access_token":"access","expires_in":10}',
+            content_type='application/json'
+        )
+        _fake_fetch.return_value = fake_response
+
+        await self.manager._request_token()
+        request_kwargs = _fake_fetch.call_args[1]
+        self.assertEqual(request_kwargs['timeout'], 2)
+        self.assertEqual(request_kwargs.get('headers').get('Authorization'),
+                         'Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=')
+        self.assertEqual(request_kwargs.get('data').get('scope'),
+                         'user')
+
+    @patch('aioalf.manager.ClientSession')
+    @unittest_run_loop
+    async def test_can_use_multiple_scopes(self, client_session_mock):
+        _fake_fetch = CoroutineMock()
+        client_mock = ClientSessionMock()
+        client_mock.request = _fake_fetch
+        client_session_mock.return_value = client_mock
+
+        self.manager = TokenManager(self.end_point,
+                                    self.client_id,
+                                    self.client_secret,
+                                    self.http_options,
+                                    scope=["user", "user:admin", "specialScope"])
+
+        fake_response = make_response(
+            self.loop,
+            'POST',
+            'http://localhost/token',
+            data='{"access_token":"access","expires_in":10}',
+            content_type='application/json'
+        )
+        _fake_fetch.return_value = fake_response
+
+        await self.manager._request_token()
+        request_kwargs = _fake_fetch.call_args[1]
+        self.assertEqual(request_kwargs['timeout'], 2)
+        self.assertEqual(request_kwargs.get('headers').get('Authorization'),
+                         'Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=')
+        self.assertEqual(request_kwargs.get('data').get('scope'),
+                         'user user:admin specialScope')

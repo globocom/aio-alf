@@ -71,10 +71,12 @@ class OAuthImplictTokenManager(TokenManager):
     storage = None
 
     def __init__(self, token_endpoint,
-                 client_id, client_secret, http_options=None):
+                 client_id, client_secret, http_options=None,
+                 scope=None):
         self._token_endpoint = token_endpoint
         self._client_id = client_id
         self._client_secret = client_secret
+        self._scope = scope
         self._http_options = http_options if http_options else {}
         self._token_lock = Lock()
 
@@ -114,6 +116,12 @@ class OAuthImplictTokenManager(TokenManager):
             quote(self._client_id),
             quote("http://localhost:%d" % self.app['port']),
         )
+
+        if self._scope:
+            scope = self._scope
+            if isinstance(scope, list):
+                scope = " ".join(self._scope)
+            token_url = "{}&scope={}".format(token_url, quote(scope))
 
         if self._shall_open_browser():
             webbrowser.open(token_url)
