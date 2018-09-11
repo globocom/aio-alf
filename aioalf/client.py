@@ -60,7 +60,7 @@ class Client(object):
         logger.debug('Request: %s %s', method, url)
         for header in kwargs.get('headers'):
             if header.lower() == 'authorization':
-                authorization_data = request_data.get('headers', {}).get(header)
+                authorization_data = kwargs.get('headers', {}).get(header)
                 matches = TOKEN_FILTER.match(authorization_data)
                 if matches:
                     logger.debug(('Header {}: {}<...>{}').format(header,
