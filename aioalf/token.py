@@ -3,7 +3,7 @@
 import re
 from datetime import datetime, timedelta
 
-TOKEN_FILTER = re.compile(r'^(?P<start>.{5}).*(?P<end>.{2})$')
+TOKEN_FILTER = re.compile(r'^(.*\ )(?P<start>.{5}).*(?P<end>.{2})$')
 
 
 class TokenError(Exception):
