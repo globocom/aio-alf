@@ -28,7 +28,16 @@ class AsyncTestCase(TestCase):
 
 def make_response(loop, method, url, data=None,
                   content_type='text/plain', charset='utf-8'):
-    if LooseVersion(aiohttp_version) >= LooseVersion('3.1.0'):
+    if LooseVersion(aiohttp_version) >= LooseVersion('3.3.0'):
+        response = ClientResponse(method, URL(url),
+                                  writer=mock.Mock(),
+                                  continue100=None,
+                                  timer=None,
+                                  request_info=mock.Mock(),
+                                  traces=[],
+                                  loop=loop,
+                                  session=mock.Mock())
+    elif LooseVersion(aiohttp_version) >= LooseVersion('3.1.0'):
         response = ClientResponse(method, URL(url),
                                   writer=mock.Mock(),
                                   continue100=None,
@@ -52,8 +61,12 @@ def make_response(loop, method, url, data=None,
         fut.set_result(str(data).encode(charset))
         return fut
 
-    response.headers = {
-        'Content-Type': '%s; charset=%s' % (content_type, charset)}
+    if LooseVersion(aiohttp_version) >= LooseVersion('3.3.0'):
+        response._headers = {
+            'Content-Type': '%s; charset=%s' % (content_type, charset)}
+    else:
+        response.headers = {
+            'Content-Type': '%s; charset=%s' % (content_type, charset)}
     content = response.content = mock.Mock()
     if data:
         content.read.side_effect = side_effect

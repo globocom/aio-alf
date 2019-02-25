@@ -25,8 +25,7 @@ class TestToken(TestCase):
         token = Token(access_token='access_token', expires_in=10)
         self.assertTrue(token.expires_on > datetime.datetime.utcnow())
         self.assertTrue(
-            token.expires_on <
-            datetime.datetime.utcnow() + datetime.timedelta(seconds=15))
+            token.expires_on < datetime.datetime.utcnow() + datetime.timedelta(seconds=15))
 
 
 class TestTokenHTTPError(TestCase):

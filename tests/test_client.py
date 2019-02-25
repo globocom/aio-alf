@@ -127,6 +127,7 @@ class TestClient(AsyncTestCase):
         manager = CoroutineMock()
         manager._has_token.return_value = has_token
         manager.get_token.return_value = CoroutineMock(access_token[0])
+        manager.reset_token = CoroutineMock(return_value=None)
         manager.request_token.return_value = CoroutineMock(
             code=code,
             error=(code == 200 and None or Exception('error'))

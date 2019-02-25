@@ -29,11 +29,16 @@ class TestTokenManager(AsyncTestCase):
         self.manager._token = Token('', expires_in=10)
         self.assertTrue(self.manager._has_token())
 
-    def test_should_reset_token(self):
-        self.manager.reset_token()
+    @unittest_run_loop
+    async def test_should_reset_token(self):
+        self._fake_fetch.return_value = {
+            'access_token': 'accesstoken',
+            'expires_in': 10,
+        }
+        await self.manager.reset_token()
 
-        self.assertEqual(self.manager._token.access_token, '')
-        self.assertEqual(self.manager._token._expires_in, 0)
+        self.assertEqual(self.manager._token.access_token, 'accesstoken')
+        self.assertEqual(self.manager._token._expires_in, 10)
 
     @unittest_run_loop
     async def test_should_be_able_to_request_a_new_token(self):
@@ -103,8 +108,13 @@ class TestTokenManager(AsyncTestCase):
 
         _has_token.return_value = False
 
-        await self.manager.get_token()
+        def set_token():
+            self.manager._token = Token('access_token', expires_in=100)
+        _update_token.side_effect = set_token
 
+        token = await self.manager.get_token()
+
+        self.assertEqual(token, 'access_token')
         self.assertTrue(_update_token.called)
 
 

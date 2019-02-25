@@ -19,12 +19,12 @@ class TokenManager(object):
         self._client_id = client_id
         self._client_secret = client_secret
         self._scope = scope
-        self._token = Token()
+        self._token = None
         self._http_options = http_options if http_options else {}
         self._token_lock = Lock()
 
     def _has_token(self):
-        return self._token.is_valid()
+        return self._token and self._token.is_valid()
 
     async def get_token(self):
         async with self._token_lock:
@@ -35,8 +35,8 @@ class TokenManager(object):
     async def _get_token_data(self):
         return await self._request_token()
 
-    def reset_token(self):
-        self._token = Token()
+    async def reset_token(self):
+        await self._update_token()
 
     async def _update_token(self):
         token_data = await self._get_token_data()

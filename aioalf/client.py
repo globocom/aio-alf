@@ -38,14 +38,14 @@ class Client(object):
             if response.status != BAD_TOKEN:
                 return response
 
-            self._token_manager.reset_token()
+            await self._token_manager.reset_token()
             response = await self._authorized_fetch(method,
                                                     url,
                                                     **kwargs)
             return response
 
         except TokenError:
-            self._token_manager.reset_token()
+            await self._token_manager.reset_token()
             raise
 
     async def _authorized_fetch(self, method, url, **kwargs):
